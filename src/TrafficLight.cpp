@@ -37,12 +37,6 @@ void TrafficLight::waitForGreen()
 {
 
     while(msgQueue.receive() != TrafficLightPhase::green);
-    // while(true)
-    // {
-    //     if(msgQueue.receive() != TrafficLightPhase::green) return;
-
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    // }
     return;
 }
 
