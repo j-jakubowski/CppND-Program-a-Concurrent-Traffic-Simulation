@@ -44,7 +44,8 @@ private:
     // typical behaviour methods
 
     void cycleThroughPhases();
-    
+    void toggleState();
+
     MessageQueue<TrafficLightPhase> msgQueue;
     TrafficLightPhase _currentPhase;
     std::condition_variable _condition;

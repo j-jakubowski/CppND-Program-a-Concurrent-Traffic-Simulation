@@ -53,13 +53,31 @@ void TrafficLight::simulate()
 // virtual function which is executed in a thread
 void TrafficLight::cycleThroughPhases()
 {
-    for(;;)
-    {
-        int timeToSleep = 4000 + rand() % 2001;  // 4sec + 0-2 sec
-        std::this_thread::sleep_for(std::chrono::milliseconds(timeToSleep));
+    using time_type = std::chrono::time_point<std::chrono::steady_clock>;
+    const int interval = 4 + rand() % 3;
 
-        if (_currentPhase == TrafficLightPhase::green) _currentPhase = TrafficLightPhase::red;
-        else _currentPhase = TrafficLightPhase::green;
-        msgQueue.send(std::move(_currentPhase));
+    time_type last_toggle_time = std::chrono::steady_clock::now();
+
+    while(true)
+    {
+        time_type now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::seconds>(now - last_toggle_time).count() >= interval)
+        {
+            toggleState();
+            last_toggle_time = now;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        // Cleaner solution IMHO, doesn't use active polling
+        // std::this_thread::sleep_for(std::chrono::seconds(interval));
+        // toggleState();
     }
+}
+
+
+void TrafficLight::toggleState()
+{
+    if (_currentPhase == TrafficLightPhase::green) _currentPhase = TrafficLightPhase::red;
+    else _currentPhase = TrafficLightPhase::green;
+    msgQueue.send(std::move(_currentPhase));
 }
